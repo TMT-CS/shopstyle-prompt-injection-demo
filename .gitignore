@@ -1,0 +1,46 @@
+# ── Secrets / môi trường ─────────────────────────────
+# KHÔNG commit secret thật (JWT key, API key). Chỉ commit .env.example
+.env
+.env.*
+!.env.example
+*.env
+!*.env.example
+
+# ── Python ───────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# ── Database (dữ liệu runtime, tái tạo bằng seed.py) ──
+*.db
+*.sqlite
+*.sqlite3
+
+# ── Logs thực nghiệm (tái tạo khi chạy demo) ─────────
+backend/logs/*.jsonl
+*.log
+
+# ── Node / Next.js ───────────────────────────────────
+node_modules/
+.next/
+out/
+build/
+.vercel/
+*.tsbuildinfo
+next-env.d.ts
+.pnp
+.pnp.js
+
+# ── File báo cáo / tài liệu biên dịch (không phải code) ─
+*.docx
+*.pdf
+final.txt
+
+# ── IDE / OS ─────────────────────────────────────────
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
