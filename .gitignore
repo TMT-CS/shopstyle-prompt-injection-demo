@@ -41,6 +41,7 @@ final.txt
 
 # ── Claude Code (chỉ dùng cá nhân — không public) ────
 .claude/
+CLAUDE.md
 
 # ── IDE / OS ─────────────────────────────────────────
 .vscode/
