@@ -1,31 +1,25 @@
 # ShopStyle — Demo Tấn công Prompt Injection trên Web tích hợp Chatbot AI
 
-Ứng dụng **demo phục vụ nghiên cứu học thuật** cho chuyên đề:
-
-> **"Tấn công Prompt Injection trên ứng dụng web tích hợp chatbot AI và cách phòng chống"**
-> Ban Cơ yếu Chính phủ — Học viện Kỹ thuật Mật mã — Khoa An toàn thông tin, Hà Nội 2026.
-> Nhóm SV: Trần Minh Thanh (AT200155), Nguyễn Văn Đáp (AT200109), Phùng Văn Hưng (AT200124).
-> GVHD: ThS. Lê Thị Hồng Vân.
-
 Hệ thống mô phỏng một website bán quần áo có chatbot AI hỗ trợ khách hàng, được xây dựng **có chủ đích chứa lỗ hổng** để làm môi trường kiểm thử ba kỹ thuật Prompt Injection (**Direct**, **Indirect**, **Jailbreak**) và **5 biện pháp phòng chống**.
 
 > ⚠️ **CẢNH BÁO AN TOÀN**
 > Đây là môi trường mô phỏng có lỗ hổng cố ý (system prompt chứa key giả, tool `execute_sql`/`delete_user_account`...).
-> **Chỉ chạy trên localhost. TUYỆT ĐỐI KHÔNG deploy ra internet.**
+> **Chỉ chạy trên localhost.**
 
 ---
 
 ## Kiến trúc
 
-| Thành phần | Công nghệ |
-|-----------|-----------|
-| Frontend | Next.js 14 (App Router) + Tailwind CSS |
-| Backend | FastAPI + SQLAlchemy (SQLite) |
-| Auth | JWT (python-jose) + bcrypt |
-| LLM | **Ollama `qwen3:8b`** (mặc định, OpenAI-compatible) — Anthropic là fallback tùy chọn |
-| Demo nhanh | `index.html` — SPA standalone (vanilla JS, không cần backend) |
+| Thành phần | Công nghệ                                                                            |
+| ---------- | ------------------------------------------------------------------------------------ |
+| Frontend   | Next.js 14 (App Router) + Tailwind CSS                                               |
+| Backend    | FastAPI + SQLAlchemy (SQLite)                                                        |
+| Auth       | JWT (python-jose) + bcrypt                                                           |
+| LLM        | **Ollama `qwen3:8b`** (mặc định, OpenAI-compatible) — Anthropic là fallback tùy chọn |
+| Demo nhanh | `index.html` — SPA standalone (vanilla JS, không cần backend)                        |
 
 Luồng Indirect Injection chính:
+
 ```
 [System Prompt] + [User Message] + [Product Description] + [Comments] → LLM
                                     └──────── vector tấn công ────────┘
@@ -68,21 +62,17 @@ demo/
 
 ## Cài đặt & chạy
 
-### Cách nhanh nhất — Demo standalone (không cần backend)
-
-Mở trực tiếp file **`index.html`** bằng trình duyệt. Toàn bộ dữ liệu, chatbot và phản hồi AI được mô phỏng trong JS — đây là demo chính dùng cho báo cáo.
-
-### Chạy full-stack (backend + frontend + LLM thật)
-
 Cần **4 terminal** (hoặc chạy nền), theo thứ tự:
 
 **1. Ollama — khởi động LLM (chỉ pull model lần đầu)**
+
 ```bash
 ollama serve            # khởi động daemon (nếu chưa chạy)
 ollama pull qwen3:8b    # tải model (chỉ cần 1 lần, ~5GB)
 ```
 
 **2. Backend — FastAPI (port 8000)**
+
 ```bash
 cd backend
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
@@ -90,16 +80,20 @@ pip install -r requirements.txt
 cp .env.example .env          # rồi chỉnh JWT_SECRET_KEY... (Windows: copy .env.example .env)
 python main.py
 ```
+
 API docs: http://localhost:8000/docs
 
 **3. Seed database (chỉ chạy 1 lần, sau khi backend đã tạo bảng)**
+
 ```bash
 cd backend
 python seed.py     # tạo sản phẩm mẫu + comments chứa Indirect Injection payload
 ```
+
 > Cần reset dữ liệu? Chạy `python reset_db.py` rồi seed lại.
 
 **4. Frontend — Next.js (port 3000)**
+
 ```bash
 cd frontend
 npm install
@@ -137,11 +131,11 @@ JAILBREAK_SCENARIO=false                     # true = baseline có ranh giới v
 
 Toàn bộ cơ chế bật/tắt qua **2 biến môi trường**, sau khi đổi cần **khởi động lại backend**:
 
-| Kịch bản | `DEFENSE_ACTIVE` | `JAILBREAK_SCENARIO` | Prompt dùng |
-|----------|:---:|:---:|-------------|
-| Baseline (Direct/Indirect) | `false` | `false` | `VULNERABLE_PROMPT` (chứa key giả, đủ 6 tool) |
-| Baseline có ranh giới (Jailbreak) | `false` | `true` | `JAILBREAK_PROMPT` |
-| **Đã phòng thủ** | `true` | (bỏ qua) | `HARDENED_PROMPT` |
+| Kịch bản                          | `DEFENSE_ACTIVE` | `JAILBREAK_SCENARIO` | Prompt dùng                                   |
+| --------------------------------- | :--------------: | :------------------: | --------------------------------------------- |
+| Baseline (Direct/Indirect)        |     `false`      |       `false`        | `VULNERABLE_PROMPT` (chứa key giả, đủ 6 tool) |
+| Baseline có ranh giới (Jailbreak) |     `false`      |        `true`        | `JAILBREAK_PROMPT`                            |
+| **Đã phòng thủ**                  |      `true`      |       (bỏ qua)       | `HARDENED_PROMPT`                             |
 
 **5 biện pháp phòng chống** (kích hoạt khi `DEFENSE_ACTIVE=true` — `backend/llm/defenses.py`):
 
@@ -157,14 +151,14 @@ Toàn bộ cơ chế bật/tắt qua **2 biến môi trường**, sau khi đổi
 
 ## API chính
 
-| Method | Path | Mô tả |
-|--------|------|-------|
-| POST | `/api/auth/register` · `/api/auth/login` | Đăng ký / đăng nhập (JWT) |
-| GET | `/api/products` · `/api/products/{id}` | Danh sách / chi tiết sản phẩm |
-| GET | `/api/products/{id}/summary` | Chatbot tóm tắt SP — **vector Indirect Injection** |
-| GET/POST | `/api/products/{id}/comments` | Xem / đăng bình luận |
-| POST | `/api/chat` | Chat với AI (LLM có thể gọi tools) |
-| POST | `/api/admin/execute-sql` | ⚠ API nguy hiểm — chỉ dùng trong môi trường kiểm soát |
+| Method   | Path                                     | Mô tả                                                 |
+| -------- | ---------------------------------------- | ----------------------------------------------------- |
+| POST     | `/api/auth/register` · `/api/auth/login` | Đăng ký / đăng nhập (JWT)                             |
+| GET      | `/api/products` · `/api/products/{id}`   | Danh sách / chi tiết sản phẩm                         |
+| GET      | `/api/products/{id}/summary`             | Chatbot tóm tắt SP — **vector Indirect Injection**    |
+| GET/POST | `/api/products/{id}/comments`            | Xem / đăng bình luận                                  |
+| POST     | `/api/chat`                              | Chat với AI (LLM có thể gọi tools)                    |
+| POST     | `/api/admin/execute-sql`                 | ⚠ API nguy hiểm — chỉ dùng trong môi trường kiểm soát |
 
 Chi tiết đầy đủ: http://localhost:8000/docs
 
