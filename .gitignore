@@ -39,6 +39,9 @@ next-env.d.ts
 *.pdf
 final.txt
 
+# ── Claude Code (chỉ dùng cá nhân — không public) ────
+.claude/
+
 # ── IDE / OS ─────────────────────────────────────────
 .vscode/
 .idea/
